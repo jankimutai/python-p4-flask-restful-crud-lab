@@ -36,6 +36,8 @@ class Plants(Resource):
         db.session.commit()
 
         return make_response(new_plant.to_dict(), 201)
+    
+    
 
 
 api.add_resource(Plants, '/plants')
@@ -46,8 +48,42 @@ class PlantByID(Resource):
     def get(self, id):
         plant = Plant.query.filter_by(id=id).first().to_dict()
         return make_response(jsonify(plant), 200)
+    def patch(self,id):
+        data = request.get_json()
+        plant = Plant.query.filter_by(id=id).first()
+
+        for attr in data:
+            setattr(plant,attr,data[attr])
+
+        db.session.add(plant)
+        db.session.commit()
+
+        plant_serialized = plant.to_dict()
+
+        
+        response = make_response(
+            jsonify(plant_serialized),
+            200
+        )
+        
+        return response
+    def delete(self,id):
+        plant = Plant.query.filter_by(id=id).first()
+        db.session.delete(plant)
+        db.session.commit()
+        response_dict = {}
 
 
+        response = make_response(
+            jsonify(response_dict),
+            204
+        )
+        
+
+        return response
+
+    
+    
 api.add_resource(PlantByID, '/plants/<int:id>')
 
 
